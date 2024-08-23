@@ -1,90 +1,68 @@
-import type { Request,Response } from 'express'
-import { db } from '../config/db.js';
+import type { Request, Response } from 'express';
 import haversine from 'haversine-distance';
+import prisma from '../config/db';
 
-export const AddSchool = (req: Request, res: Response) => {
-    const { name, address, latitude, longitude } = req.body;
 
-    // Validate input
-    if (!name || !address || latitude === undefined || longitude === undefined) {
-        return res.status(400).json({ message: 'Please fill in all fields' });
-    }
+export const AddSchool = async (req: Request, res: Response) => {
+  const { name, address, latitude, longitude } = req.body;
 
-    // Parse latitude and longitude to numbers
-    const lat = parseFloat(latitude);
-    const lon = parseFloat(longitude);
+  // Validate input
+  if (!name || !address || latitude === undefined || longitude === undefined) {
+    return res.status(400).json({ message: 'Please fill in all fields' });
+  }
 
-    if (isNaN(lat) || isNaN(lon)) {
-        return res.status(400).json({ message: 'Invalid latitude or longitude' });
-    }
+  // Parse latitude and longitude to numbers
+  const lat = parseFloat(latitude);
+  const lon = parseFloat(longitude);
 
-    const query = "INSERT INTO school_data (name, address, latitude, longitude) VALUES (?, ?, ?, ?)";
+  if (isNaN(lat) || isNaN(lon)) {
+    return res.status(400).json({ message: 'Invalid latitude or longitude' });
+  }
 
-    db.query(query, [name, address, lat, lon], (err, results) => {
-        if (err) {
-            console.error('Error inserting data:', err.message);
-            return res.status(500).json({ message: 'Failed to add school data' });
-        }
-
-        // Send success response
-        res.status(201).json({ message: 'School data added successfully', id: results });
+  try {
+    const school = await prisma.school.create({
+      data: {
+        name,
+        address,
+        latitude: lat,
+        longitude: lon,
+      },
     });
+    res.status(201).json({ message: 'School data added successfully', id: school.id });
+  } catch (error) {
+    console.error('Error adding school data:', error);
+    res.status(500).json({ message: 'An error occurred while adding school data' });
+  }
 };
 
-
-export const getSchool = (req: Request, res: Response) => {
-    console.log("Request Body:", req.query);
-
+export const getSchool = async (req: Request, res: Response) => {
     const { latitude, longitude } = req.query;
     const lat = parseFloat(latitude as string);
     const lon = parseFloat(longitude as string);
-
-    console.log("Parsed Latitude:", lat);
-    console.log("Parsed Longitude:", lon);
-
+  
     if (isNaN(lat) || isNaN(lon)) {
-        return res.status(400).json({ message: 'Invalid latitude or longitude' });
+      return res.status(400).json({ message: 'Invalid latitude or longitude' });
     }
+  
+    try {
+      const schools = await prisma.school.findMany();
+      const sortedResults = schools.map((school) => {
+        const distance = haversine(
+          { latitude: lat, longitude: lon },
+          { latitude: school.latitude, longitude: school.longitude }
+        );
+        return { ...school, distance };
+      }).sort((a, b) => a.distance - b.distance);
+  
+      res.status(200).json({
+        message: 'School Data Fetched',
+        All_Schools: schools,
+        Distances: sortedResults,
+      });
+    } catch (error) {
+      console.error('Error fetching school data:', error);
+      res.status(500).json({ message: 'An error occurred while fetching school data' });
+    }
+  };
 
-    const query = "SELECT * FROM school_data";
-    console.log("SQL Query:", query);
-    console.log("Query Parameters:", [lat, lon]);
 
-    db.query(query, (err, results) => {
-        if (err) {
-            console.error('Error fetching data:', err.message);
-            return res.status(500).json({ message: 'Failed to fetch school data' });
-        }
-
-        if(Array.isArray(results)) {
-            const sortedResults = results.map((school: any) => {
-                const distance = haversine(
-                    { latitude: lat, longitude: lon },
-                    { latitude: school.latitude, longitude: school.longitude }
-                );
-                return { ...school, distance };
-            }).sort((a: any, b: any) => a.distance - b.distance);
-    
-            console.log('Query Results:', sortedResults);
-    
-           return res.status(200).json({ message: "School Data Fetched",All_Schools : results,Distances: sortedResults });
-        }else{
-            return res.status(500).json({ message: 'Unexpected query result type' });
-        }
-       
-    });
-};
-
-export const getAll = (req: Request, res: Response) => {
-    const query = "SELECT * FROM school_data";
-    db.query(query, (err, results) => {
-        if (err) {
-            console.error('Error fetching data:', err.message);
-            return res.status(500).json({ message: 'Failed to fetch school data' });
-        }
-
-        console.log('Query Results:', results);
-
-        res.status(200).json({ message: "School Data Fetched", results });
-    });
-};
