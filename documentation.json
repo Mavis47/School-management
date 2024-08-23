@@ -1,0 +1,73 @@
+{
+    "info": {
+      "name": "School Management API",
+      "description": "API for managing school data, including adding new schools and listing nearby schools sorted by distance.",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "Add School",
+        "request": {
+          "method": "POST",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n    \"name\": \"Sample School\",\n    \"address\": \"123 School Street\",\n    \"latitude\": 40.7128,\n    \"longitude\": -74.0060\n}"
+          },
+          "url": {
+            "raw": "{{base_url}}/api/AddSchool",
+            "host": [
+              "{{base_url}}"
+            ],
+            "path": [
+              "api",
+              "AddSchool"
+            ]
+          },
+          "description": "Adds a new school to the database with the provided name, address, latitude, and longitude. The request body should contain the school's name, address, latitude, and longitude as JSON."
+        },
+        "response": []
+      },
+      {
+        "name": "List Schools",
+        "request": {
+          "method": "GET",
+          "header": [],
+          "url": {
+            "raw": "{{base_url}}/api/listSchools?latitude=40.7128&longitude=-74.0060",
+            "host": [
+              "{{base_url}}"
+            ],
+            "path": [
+              "api",
+              "listSchools"
+            ],
+            "query": [
+              {
+                "key": "latitude",
+                "value": "40.7128"
+              },
+              {
+                "key": "longitude",
+                "value": "-74.0060"
+              }
+            ]
+          },
+          "description": "Retrieves a list of all schools from the database, sorted by their distance from the specified latitude and longitude coordinates provided in the query parameters. The response includes the school data along with the calculated distance."
+        },
+        "response": []
+      }
+    ],
+    "variable": [
+      {
+        "key": "base_url",
+        "value": "http://localhost:5000"
+      }
+    ]
+  }
+  
