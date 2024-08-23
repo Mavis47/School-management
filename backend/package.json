@@ -3,7 +3,7 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "start": "npm --env-file .env index.ts"
+    "start": "npm index.ts"
   },
   "devDependencies": {
     "@types/bun": "latest",
