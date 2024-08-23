@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import haversine from 'haversine-distance';
-import prisma from '../config/db';
+import prisma from '../config/db.js';
 
 
 export const AddSchool = async (req: Request, res: Response) => {
