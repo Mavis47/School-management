@@ -7,6 +7,8 @@ const db = mysql.createConnection({
     database: process.env.DATABASE
 })
 
+console.log(process.env.HOST,process.env.user,process.env.password,process.env.DATABASE)
+
 db.connect((err) => {
     if (err) {
         console.error('Error connecting to MySQL:', err.message);
