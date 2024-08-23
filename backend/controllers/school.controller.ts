@@ -1,5 +1,5 @@
 import type { Request,Response } from 'express'
-import { db } from '../config/db';
+import { db } from '../config/db.js';
 import haversine from 'haversine-distance';
 
 export const AddSchool = (req: Request, res: Response) => {

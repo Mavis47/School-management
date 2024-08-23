@@ -1,7 +1,7 @@
 import express from "express";
 import type { Request,Response } from "express";
-import { db } from "./config/db";
-import schoolRoute from "./routes/school.route";
+import { db } from "./config/db.js";
+import schoolRoute from "./routes/school.route.js";
 
 const app = express();
 const PORT = process.env.PORT || 5001
