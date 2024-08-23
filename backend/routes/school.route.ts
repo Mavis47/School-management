@@ -3,6 +3,6 @@ import { AddSchool, getSchool } from "../controllers/school.controller.js";
 
 const router = express.Router();
 
-router.post('/AddSchool',AddSchool)
+router.post('/addSchool',AddSchool)
 router.get('/listSchools',getSchool)
 export default router;
